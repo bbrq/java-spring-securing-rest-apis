@@ -27,7 +27,8 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 	}
 
 	@Override
-	public UserDetails loadUserByUsername(String username) {
+	public UserDetails loadUserByUsername(String username) 
+		throws UsernameNotFoundException {
 		//throw new UsernameNotFoundException("no user");
 		return this.users.findByUsername(username)
 		        .map(BridgeUser::new)
