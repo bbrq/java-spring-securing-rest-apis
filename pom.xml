@@ -36,6 +36,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
+		<!-- to activate security 
+		  	It requires authorization for every endpoint - whether Boot-generated or you-generated - 
+		  		via HTTP Basic or Form Login.
+			It protects every endpoint from common web application security vulnerabilities like 
+				XSS, CSRF, and clickjacking.
+			It creates a default user with a random password, for initial testing.
+			It creates a PasswordEncoder that uses BCrypt for hashing the password.-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
