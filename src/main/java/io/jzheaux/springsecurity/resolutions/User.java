@@ -17,6 +17,11 @@ import javax.persistence.OneToMany;
 
 // create a JPA-managed User entity to represent users.
 @Entity(name = "users")
+/*
+ * we could have changed User to implement UserDetails. 
+ * the reason the demonstrated way is preferred is that it hides the relationship 
+ * between domain and Spring Security behind Spring Security interfaces.
+ * */
 public class User implements Serializable {
 	@Id
 	@GeneratedValue //otherwise : ids for this class must be manually assigned before calling save()

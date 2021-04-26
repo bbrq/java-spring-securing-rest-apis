@@ -1,17 +1,18 @@
 package io.jzheaux.springsecurity.resolutions;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.transaction.Transactional;
+
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 public class ResolutionController {
@@ -31,13 +32,18 @@ public class ResolutionController {
 		return this.resolutions.findById(id);
 	}
 
+	//with custom UserDetailsService in place, we can access 
+	//domain-specific information in controller method parameters.
+	//@CurrentUsername will cause Spring to look up the username of the currently logged in user, 
+	//and use it when calling this method.
 	@PostMapping("/resolution")
-	public Resolution make(@RequestBody String text) {
-		String owner = "user";
+	public Resolution make(@CurrentUsername String owner, @RequestBody String text) {
 		Resolution resolution = new Resolution(text, owner);
 		return this.resolutions.save(resolution);
 	}
-
+	
+	
+	
 	@PutMapping(path="/resolution/{id}/revise")
 	@Transactional
 	public Optional<Resolution> revise(@PathVariable("id") UUID id, @RequestBody String text) {
