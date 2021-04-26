@@ -50,6 +50,17 @@ public class User implements Serializable {
 		this.password = password;
 	}
 
+	/**
+	 add a copy constructor to User, in preparation for building a custom UserDetailsService
+	 */
+	public User(User user) {
+	    this.id = user.id;
+	    this.username = user.username;
+	    this.password = user.password;
+	    this.enabled = user.enabled;
+	    this.userAuthorities = user.userAuthorities;
+	}
+	
 	public UUID getId() {
 		return id;
 	}

@@ -21,6 +21,16 @@ public class UserAuthority {
     @ManyToOne
     User user;
     
+    /**
+	  While not strictly necessary,  add a copy constructor to UserAuthority will allow you to make a deep copy 
+	  of user.userAuthorities in User's copy constructor.
+	 */
+	public UserAuthority(UserAuthority auth) {
+	    this.id = user.id;
+	    this.authority = auth.authority;
+	    this.user = auth.user;
+	}
+    
     UserAuthority() {}
     public UserAuthority(User user, String authority) {
         this.id = UUID.randomUUID();
