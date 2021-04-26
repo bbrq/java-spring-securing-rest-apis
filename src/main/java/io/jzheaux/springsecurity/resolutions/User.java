@@ -1,11 +1,17 @@
 package io.jzheaux.springsecurity.resolutions;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 // create a JPA-managed User entity to represent users.
 @Entity(name = "users")
@@ -18,6 +24,19 @@ public class User implements Serializable {
 	String password;
 	@Column
 	boolean enabled = true;
+	//manage the bi-directional relationship between User and UserAuthority, 
+    //add a Set<UserAuthority> field as well as a grantAuthority method to User
+	@OneToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+    Collection<UserAuthority> userAuthorities = new ArrayList<>();
+	
+	public Collection<UserAuthority> getUserAuthorities() {
+        return Collections.unmodifiableCollection(this.userAuthorities);
+    }
+    public void grantAuthority(String authority) {
+        UserAuthority userAuthority = new UserAuthority(this, authority);
+        this.userAuthorities.add(userAuthority);
+    }
+	
 	User() {}
 	public User(String username, String password) {
 	    this.id = UUID.randomUUID();
