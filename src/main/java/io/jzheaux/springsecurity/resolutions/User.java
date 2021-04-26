@@ -10,6 +10,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
@@ -17,6 +19,7 @@ import javax.persistence.OneToMany;
 @Entity(name = "users")
 public class User implements Serializable {
 	@Id
+	@GeneratedValue //otherwise : ids for this class must be manually assigned before calling save()
 	UUID id;
 	@Column
 	String username;
@@ -24,49 +27,59 @@ public class User implements Serializable {
 	String password;
 	@Column
 	boolean enabled = true;
-	//manage the bi-directional relationship between User and UserAuthority, 
-    //add a Set<UserAuthority> field as well as a grantAuthority method to User
-	@OneToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
-    Collection<UserAuthority> userAuthorities = new ArrayList<>();
-	
+	// manage the bi-directional relationship between User and UserAuthority,
+	// add a Set<UserAuthority> field as well as a grantAuthority method to User
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	Collection<UserAuthority> userAuthorities = new ArrayList<>();
+
 	public Collection<UserAuthority> getUserAuthorities() {
-        return Collections.unmodifiableCollection(this.userAuthorities);
-    }
-    public void grantAuthority(String authority) {
-        UserAuthority userAuthority = new UserAuthority(this, authority);
-        this.userAuthorities.add(userAuthority);
-    }
-	
-	User() {}
+		return Collections.unmodifiableCollection(this.userAuthorities);
+	}
+
+	public void grantAuthority(String authority) {
+		UserAuthority userAuthority = new UserAuthority(this, authority);
+		this.userAuthorities.add(userAuthority);
+	}
+
+	User() {
+	}
+
 	public User(String username, String password) {
-	    this.id = UUID.randomUUID();
-	    this.username = username;
-	    this.password = password;
-	}	
-	
+		this.id = UUID.randomUUID();
+		this.username = username;
+		this.password = password;
+	}
+
 	public UUID getId() {
 		return id;
 	}
+
 	public void setId(UUID id) {
 		this.id = id;
 	}
+
 	public String getUsername() {
 		return username;
 	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public String getPassword() {
 		return password;
 	}
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 	public boolean isEnabled() {
 		return enabled;
 	}
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-	}	
+	}
 
 }
