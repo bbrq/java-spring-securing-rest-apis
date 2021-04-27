@@ -74,6 +74,18 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
         	.authorizeRequests(authz -> authz
                 .anyRequest().authenticated())
             .httpBasic(basic -> {})
+            /*To activate Spring Security's support for JWT-based Bearer Token Authentication, 
+		      1, add the appropriate dependencies and 2, specify the location of the authorization server.
+		      3, configure your WebSecurityConfigurerAdapter to allow JWT-based Bearer Token Authentication.
+		      add oauth2ResourceServer to the DSL configuration, specifying its jwt configuration value
+		      
+		      note:
+		      Security with Spring is naturally declarative, and so WebSecurityConfigurerAdapter requires you to 
+		      specify a whitelist of allowed authentication mechanisms.
+		      The reason that simple Spring Boot applications can get away without this step is that 
+		      Spring Boot creates its own instance of WebSecurityConfigurerAdapter for you if you haven't yourself.
+              * */
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt())
             //To configure Spring Security to allow CORS handshakes, call the cors() method in the Spring Security DSL
             .cors(cors -> {});;
         //more on above code:
