@@ -33,6 +33,7 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 		User user = new User("user",
 				//password: password
 	            "{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
+		user.setFullName("User Userson");
 		user.grantAuthority("resolution:read");
 		user.grantAuthority("resolution:write");
 	    this.users.save(user);
@@ -40,9 +41,11 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 	    User hasread = new User();
 	    hasread.setUsername("hasread");
 	    hasread.setPassword("{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
+	    hasread.setFullName("Has Read");
 	    hasread.grantAuthority("resolution:read");
 	    this.users.save(hasread);
 	    User haswrite = new User();
+	    haswrite.setFullName("has Write");
 	    haswrite.setUsername("haswrite");
 	    haswrite.setPassword("{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
 	    haswrite.grantAuthority("resolution:write");
@@ -55,6 +58,7 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 	    
 	    //First, create an admin user in ResolutionInitializer:
 	    User admin = new User("admin","{bcrypt}$2a$10$bTu5ilpT4YILX8dOWM/05efJnoSlX4ElNnjhNopL9aPoRyUgvXAYa");
+	    admin.setFullName("Admin Adminson");
 	    admin.grantAuthority("ROLE_ADMIN");
 	    admin.grantAuthority("resolution:read");
 	    admin.grantAuthority("resolution:write");

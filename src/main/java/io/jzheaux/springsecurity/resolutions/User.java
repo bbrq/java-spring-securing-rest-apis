@@ -26,8 +26,19 @@ public class User implements Serializable {
 	@Id
 	@GeneratedValue //otherwise : ids for this class must be manually assigned before calling save()
 	UUID id;
+	
+	/*
+	 * Adding PII (Personally Identifiable Information) to an application can be tricky; Spring Security can help with 
+	 * keeping that data private.
+	 * In preparation, add the user's full name to the User object, 
+	 * and will change ResolutionController#read() to include their name as part of the results.
+	 * First, add the fullName field to User to simplifies the automated tests):
+	 * */
 	@Column
 	String username;
+	@Column(name="full_name")
+	String fullName;
+	
 	@Column
 	String password;
 	@Column
@@ -60,6 +71,7 @@ public class User implements Serializable {
 	 */
 	public User(User user) {
 	    this.id = user.id;
+	    this.fullName = user.fullName;
 	    this.username = user.username;
 	    this.password = user.password;
 	    this.enabled = user.enabled;
@@ -72,6 +84,18 @@ public class User implements Serializable {
 
 	public void setId(UUID id) {
 		this.id = id;
+	}
+	
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public void setUserAuthorities(Collection<UserAuthority> userAuthorities) {
+		this.userAuthorities = userAuthorities;
 	}
 
 	public String getUsername() {

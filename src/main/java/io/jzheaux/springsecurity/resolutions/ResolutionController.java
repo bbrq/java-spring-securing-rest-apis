@@ -26,10 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ResolutionController {
 	private final ResolutionRepository resolutions;
-
-	public ResolutionController(ResolutionRepository resolutions) {
-		this.resolutions = resolutions;
-	}
+	private final UserRepository users;
+    public ResolutionController(ResolutionRepository resolutions, UserRepository users) {
+        this.resolutions = resolutions;
+        this.users = users;
+    }
 
 	//open the /resolutions endpoint to CORS requests
 	/*(The reason to specify a maxAge of 0 is so that the browser doesn't cache any CORS preflight responses 
@@ -57,7 +58,17 @@ Check out the final task in this module for details on why securing an applicati
 	//is the root object of method-based security SpEL expressions. 
 	@PostFilter("@post.filter(#root)")
 	public Iterable<Resolution> read() {
-		return this.resolutions.findAll();
+		Iterable<Resolution> resolutions = this.resolutions.findAll();
+		/*The problem we've got here is that we're including PII in our response, and 
+		 * having the resolution:read authority probably isn't a strong enough indication that 
+		 * something untrusted like an OAuth 2.0 client should be allowed to view that info. 
+		 * We'll need something finer-grained than method-based security in this case.*/
+	    for (Resolution resolution : resolutions) {
+	        String fullName = this.users.findByUsername(resolution.getOwner())
+	                .map(User::getFullName).orElse("Anonymous");
+	        resolution.setText(resolution.getText() + ", by " + fullName);
+	    }
+	    return resolutions;
 	}
 
 	@GetMapping("/resolution/{id}")
