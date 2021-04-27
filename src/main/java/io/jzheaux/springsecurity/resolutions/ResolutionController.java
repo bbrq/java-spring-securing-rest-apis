@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,19 @@ public class ResolutionController {
 		this.resolutions = resolutions;
 	}
 
+	//open the /resolutions endpoint to CORS requests
+	/*(The reason to specify a maxAge of 0 is so that the browser doesn't cache any CORS preflight responses 
+	 * while you are making changes throughout the module.)
+	 * What the @CrossOrigin annotation does is alert Spring MVC to manage the CORS handshake. 
+	 * However, because Spring Security requires authentication on all endpoints, we also need to add some 
+	 * configuration to Spring Security, which we'll see in the next task.
+	 * Extra Credit
+	 * It's not very common for HTTP Basic and CORS to go together, as you'll see by the end of this module. 
+	 * Note; however, that these configurations will come in handy as we change over to JWT, 
+	 * a more modern authentication mechanism.
+
+Check out the final task in this module for details on why securing an application that uses both HTTP Basic and CORS can be challenging.*/
+	@CrossOrigin//(maxAge = 0) if locally verifying
 	@GetMapping("/resolutions")
 	@PreAuthorize("hasAuthority('resolution:read')")
 	//filter results from a query, only returning the ones that belong to the logged-in user.
