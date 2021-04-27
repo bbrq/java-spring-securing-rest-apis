@@ -1,16 +1,16 @@
 package io.jzheaux.springsecurity.resolutions;
 
-import javax.sql.DataSource;
-
 import static org.springframework.http.HttpMethod.GET;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @SpringBootApplication
 public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
 
@@ -62,11 +62,29 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests(authz -> authz
+            //to replace following with method-base security, 
+            //annotate each request-mapped method in ResolutionController with
+            //@PreAuthorixe to indicate what authority that method requires
+            /*.authorizeRequests(authz -> authz
             	//add authorization rules via the Spring Security DSL
                 .mvcMatchers(GET, "/resolutions", "/resolution/**").hasAuthority("resolution:read")
                 .anyRequest().hasAuthority("resolution:write"))
+            .httpBasic(basic -> {}); ==>*/
+        	.authorizeRequests(authz -> authz
+                .anyRequest().authenticated())
             .httpBasic(basic -> {});
+        //more on above code:
+        /*Clearly in a large application, pre-authorizing using filter expressions is 
+         * going to be quite a bit easier than method-based in the long run. It's a bit of a 
+         * temptation to want to address it at the method level and avoid the DSL. Note, however,
+         * that we've gone from having our authorization declarations centralized to having 
+         * them dispersed throughout the application which is a drawback.
+         * That said, we'll be adding additional annotations in just a moment that 
+         * can't be expressed in the filter-based fashion, so method-based security 
+         * certainly has its place.*/
+        
+        
+        
         /*at this point is that the application is no longer allowing a login page. 
           navigate to http://localhost:8080/resolutions, you'll instead see a modal dialogue, 
           which is how browsers respond to requests for HTTP Basic authentication.
