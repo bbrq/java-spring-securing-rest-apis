@@ -46,9 +46,8 @@ public class ResolutionController {
 	 * Note; however, that these configurations will come in handy as we change over to JWT, 
 	 * a more modern authentication mechanism.
 
-Check out the final task in this module for details on why securing an application that uses both HTTP Basic and CORS can be challenging.*/
+    Check out the final task in this module for details on why securing an application that uses both HTTP Basic and CORS can be challenging.*/
 	@CrossOrigin(allowCredentials = "true")//(maxAge = 0) if locally verifying
-	@GetMapping("/resolutions")
 	@PreAuthorize("hasAuthority('resolution:read')")
 	//filter results from a query, only returning the ones that belong to the logged-in user.
 	//so this endpoint will only return resolutions that belong to the logged-in user.
@@ -60,6 +59,7 @@ Check out the final task in this module for details on why securing an applicati
 	//The MethodSecurityExpressionOperations instance in ResolutionAuthorizer.filter()
 	//is the root object of method-based security SpEL expressions. 
 	@PostFilter("@post.filter(#root)")
+	@GetMapping("/resolutions")
 	public Iterable<Resolution> read() {
 		Iterable<Resolution> resolutions = this.resolutions.findAll();
 		
