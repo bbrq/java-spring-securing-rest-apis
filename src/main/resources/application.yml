@@ -3,3 +3,16 @@ spring:
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
+
+  #To activate Spring Security's support for JWT-based Bearer Token Authentication, 
+  #1, add the appropriate dependencies and 2, specify the location of the authorization server.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9999/auth/realms/one
+          #Where above URL come from? The value can be whatever, and just needs to be the published issuer 
+          #for your authorization server. It's usually listed in its documentation. 
+          #The URL you used above is the issuer for a Keycloak authorization server, pointing at a realm named "one".
+          #Included in the project is a docker-compose setup for Keycloak which creates a realm called one at startup. 
+          #So, while you could point this at any authorization server, this specific URL simplifies local verification.
