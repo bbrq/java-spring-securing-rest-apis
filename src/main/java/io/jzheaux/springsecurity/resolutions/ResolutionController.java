@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,13 @@ public class ResolutionController {
 
 	@GetMapping("/resolutions")
 	@PreAuthorize("hasAuthority('resolution:read')")
+	//filter results from a query, only returning the ones that belong to the logged-in user.
+	//so this endpoint will only return resolutions that belong to the logged-in user.
+	/*note: For large queries, this option doesn't really scale since it's having to pull 
+	 * large result sets from the database, hydrate them into instances of Resolution, 
+	 * only to simply throw away the majority of them. This causes needless GC pressure.
+	 * Check out the next step for a more scalable approach.*/
+	@PostFilter("filterObject.owner == authentication.name")
 	public Iterable<Resolution> read() {
 		return this.resolutions.findAll();
 	}
