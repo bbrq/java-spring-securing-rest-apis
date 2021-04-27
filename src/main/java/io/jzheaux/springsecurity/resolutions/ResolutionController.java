@@ -8,6 +8,9 @@ import javax.transaction.Transactional;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,15 +62,25 @@ Check out the final task in this module for details on why securing an applicati
 	@PostFilter("@post.filter(#root)")
 	public Iterable<Resolution> read() {
 		Iterable<Resolution> resolutions = this.resolutions.findAll();
-		/*The problem we've got here is that we're including PII in our response, and 
-		 * having the resolution:read authority probably isn't a strong enough indication that 
-		 * something untrusted like an OAuth 2.0 client should be allowed to view that info. 
-		 * We'll need something finer-grained than method-based security in this case.*/
-	    for (Resolution resolution : resolutions) {
-	        String fullName = this.users.findByUsername(resolution.getOwner())
-	                .map(User::getFullName).orElse("Anonymous");
-	        resolution.setText(resolution.getText() + ", by " + fullName);
-	    }
+		
+		//get the current authentication
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		//only authentications with the user:read authority will see the user's PII
+		/*use @CurrentSecurityContext also works, This shows you another way to get the currently logged in user,
+		 * In a real application, this comes in handy in non-controller layers when you need to get 
+		 * the current user and can use method-injection to get it passed in to you.*/
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("user:read"))) {
+		
+			/*The problem we've got here is that we're including PII in our response, and 
+			 * having the resolution:read authority probably isn't a strong enough indication that 
+			 * something untrusted like an OAuth 2.0 client should be allowed to view that info. 
+			 * We'll need something finer-grained than method-based security in this case.*/
+		    for (Resolution resolution : resolutions) {
+		        String fullName = this.users.findByUsername(resolution.getOwner())
+		                .map(User::getFullName).orElse("Anonymous");
+		        resolution.setText(resolution.getText() + ", by " + fullName);
+		    }
+		}
 	    return resolutions;
 	}
 
