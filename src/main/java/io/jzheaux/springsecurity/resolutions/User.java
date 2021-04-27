@@ -43,6 +43,18 @@ public class User implements Serializable {
 	String password;
 	@Column
 	boolean enabled = true;
+	@Column
+    String subscription;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    Collection<User> friends = new ArrayList<>();
+    public Collection<User> getFriends() {
+        return friends;
+    }
+    public void addFriend(User friend) {
+        friends.add(friend);
+    }
+	
+	
 	// manage the bi-directional relationship between User and UserAuthority,
 	// add a Set<UserAuthority> field as well as a grantAuthority method to User
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -76,6 +88,8 @@ public class User implements Serializable {
 	    this.password = user.password;
 	    this.enabled = user.enabled;
 	    this.userAuthorities = user.userAuthorities;
+	    this.subscription = user.subscription;
+	    this.friends = user.friends;
 	}
 	
 	public UUID getId() {
@@ -120,6 +134,15 @@ public class User implements Serializable {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	public String getSubscription() {
+		return subscription;
+	}
+	public void setSubscription(String subscription) {
+		this.subscription = subscription;
+	}
+	public void setFriends(Collection<User> friends) {
+		this.friends = friends;
 	}
 
 }
