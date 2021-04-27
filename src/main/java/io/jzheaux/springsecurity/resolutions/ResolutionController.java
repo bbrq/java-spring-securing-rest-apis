@@ -76,11 +76,11 @@ Check out the final task in this module for details on why securing an applicati
 			 * having the resolution:read authority probably isn't a strong enough indication that 
 			 * something untrusted like an OAuth 2.0 client should be allowed to view that info. 
 			 * We'll need something finer-grained than method-based security in this case.*/
-		    for (Resolution resolution : resolutions) {
-		        String fullName = this.users.findByUsername(resolution.getOwner())
-		                .map(User::getFullName).orElse("Anonymous");
-		        resolution.setText(resolution.getText() + ", by " + fullName);
-		    }
+			for (Resolution resolution : resolutions) {
+				String name = this.users.findByUsername(resolution.getOwner())
+						.map(User::getFullName).orElse("none");
+				resolution.setText(resolution.getText() + ", by " + name);
+			}
 		}
 	    return resolutions;
 	}
