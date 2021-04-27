@@ -47,7 +47,7 @@ public class ResolutionController {
 	 * a more modern authentication mechanism.
 
 Check out the final task in this module for details on why securing an application that uses both HTTP Basic and CORS can be challenging.*/
-	@CrossOrigin//(maxAge = 0) if locally verifying
+	@CrossOrigin(allowCredentials = "true")//(maxAge = 0) if locally verifying
 	@GetMapping("/resolutions")
 	@PreAuthorize("hasAuthority('resolution:read')")
 	//filter results from a query, only returning the ones that belong to the logged-in user.
