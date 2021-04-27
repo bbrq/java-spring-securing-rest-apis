@@ -72,7 +72,9 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
             .httpBasic(basic -> {}); ==>*/
         	.authorizeRequests(authz -> authz
                 .anyRequest().authenticated())
-            .httpBasic(basic -> {});
+            .httpBasic(basic -> {})
+            //To configure Spring Security to allow CORS handshakes, call the cors() method in the Spring Security DSL
+            .cors(cors -> {});;
         //more on above code:
         /*Clearly in a large application, pre-authorizing using filter expressions is 
          * going to be quite a bit easier than method-based in the long run. It's a bit of a 
