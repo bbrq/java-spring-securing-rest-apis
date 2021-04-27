@@ -75,6 +75,7 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 	    admin.grantAuthority("ROLE_ADMIN");
 	    admin.grantAuthority("resolution:read");
 	    admin.grantAuthority("resolution:write");
+	    user.grantAuthority("user:read");
 	    this.users.save(admin);
 	    //Second, update the authorization expressions for both ResolutionController#read methods.
         //to:

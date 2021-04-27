@@ -69,7 +69,8 @@ Check out the final task in this module for details on why securing an applicati
 		/*use @CurrentSecurityContext also works, This shows you another way to get the currently logged in user,
 		 * In a real application, this comes in handy in non-controller layers when you need to get 
 		 * the current user and can use method-injection to get it passed in to you.*/
-		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("user:read"))) {
+		boolean hasuserRead = authentication.getAuthorities().contains(new SimpleGrantedAuthority("user:read"));
+		if (hasuserRead) {
 		
 			/*The problem we've got here is that we're including PII in our response, and 
 			 * having the resolution:read authority probably isn't a strong enough indication that 
