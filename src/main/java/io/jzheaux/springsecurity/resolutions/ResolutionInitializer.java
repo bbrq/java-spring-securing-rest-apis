@@ -35,6 +35,17 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 	            "{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
 		user.setFullName("User Userson");
 		user.grantAuthority("resolution:read");
+		/*
+		 * there are as many ways to perform reconciliation as there are applications. 
+		 * The important point to remember is that sometimes applications have their own internal representation 
+		 * of authority. And, just because a client has been granted an authority, it doesn't mean 
+		 * the underlying user can actually do that. The final list of authorities ought to represent 
+		 * some kind of intersection of what the user is allowed to do and what the user has granted the 
+		 * client to be able to do on their behalf.
+		 * */
+		//because we are doing an intersection,make sure to grant the user:read authority to 
+		//the relevant users
+		user.grantAuthority("user:read");
 		user.grantAuthority("resolution:write");
 	    this.users.save(user);
 	    
@@ -43,12 +54,14 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 	    hasread.setPassword("{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
 	    hasread.setFullName("Has Read");
 	    hasread.grantAuthority("resolution:read");
+	    user.grantAuthority("user:read");
 	    this.users.save(hasread);
 	    User haswrite = new User();
 	    haswrite.setFullName("has Write");
 	    haswrite.setUsername("haswrite");
 	    haswrite.setPassword("{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
 	    haswrite.grantAuthority("resolution:write");
+	    user.grantAuthority("user:read");
 	    this.users.save(haswrite);
 	    
 	    

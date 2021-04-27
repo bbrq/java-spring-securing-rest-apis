@@ -1,21 +1,23 @@
 package io.jzheaux.springsecurity.resolutions;
 
+import static org.springframework.security.oauth2.core.OAuth2AccessToken.TokenType.BEARER;
+
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.stereotype.Component;
-import static org.springframework.security.oauth2.core.OAuth2AccessToken.TokenType.BEARER;
 
 /**
  * create customized JWT-to-Authentication converter that will query
@@ -42,6 +44,15 @@ public class UserRepositoryJwtAuthenticationConverter implements Converter<Jwt, 
         User user = this.users.findByUsername(username)
              .orElseThrow(() -> new UsernameNotFoundException("no user"));
         Collection<GrantedAuthority> authorities = this.authoritiesConverter.convert(jwt);
+        
+        //reconcile the users' authorities in the database with the scopes the user granted to the client in the JWT.
+        //retrieve the authorities from the end user:
+        Collection<GrantedAuthority> userAuthorities = user.getUserAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
+                .collect(Collectors.toList());
+        
+        //merge the two using Collection#retainAll(), which performs an intersection:
+        authorities.retainAll(userAuthorities);
         
         OAuth2AuthenticatedPrincipal principal = 
         		new UserOAuth2AuthenticatedPrincipal(user, jwt.getClaims(), authorities);
