@@ -1,7 +1,5 @@
 package io.jzheaux.springsecurity.resolutions;
 
-import static org.springframework.http.HttpMethod.GET;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +7,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableGlobalMethodSecurity(prePostEnabled=true)
 @SpringBootApplication
@@ -94,5 +95,38 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
           curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/resolutions
           403*/
     }
+	
+	
+	/*In each @CrossOrigin annotation, we can specify which origins, methods, and headers we'll allow, 
+	 * but this can be tedious in a large application.	Instead, we
+	 * add these restrictions globally in a filter-based fashion.*/
+
+	@Bean
+	WebMvcConfigurer webMvcConfigurer() {
+	    return new WebMvcConfigurer() {
+	        @Override
+	        public void addCorsMappings(CorsRegistry registry) {
+	            registry.addMapping("/**")
+	                // .maxAge(0) // if using local verification
+	                /* CORS requests will only work from http://localhost:4000. only HEAD requests will be allowed by default.*/
+	                .allowedOrigins("http://localhost:4000")
+	                /*Extra Credit
+					The @CrossOrigin annotation augments the global configuration. So, 
+					even though globally you are saying only HEAD is allowed, 
+					the @CrossOrigin annotation on ResolutionController#read will effectively whitelist GET just for /resolutions*/
+	                //Now, the server will accept Basic credentials that are handed over by the browser.
+	                /*WARNING: This is a powerful header, and should only be used when there is a very high degree of 
+	                 * trust between the two applications. Misuse of when the credentials are passed on can lead to 
+	                 * CSRF and other vulnerabilities. The app we've got so far is safe since we're only allowing 
+	                 * credentials on GET /resolutions, and because the client app is declaratively passing the credentials, 
+	                 * instead of implicitly, like with cookies.
+	                 * In the remaining modules, we'll learn about a different authentication mechanism that can better 
+	                 * address this.*/
+	                .allowedMethods("HEAD")
+	                .allowedHeaders("Authorization");
+	        }
+	    };
+	}
+
 
 }
