@@ -9,10 +9,20 @@ spring:
   security:
     oauth2:
       resourceserver:
-        jwt:
-          issuer-uri: http://localhost:9999/auth/realms/one
+        #jwt:
+          #issuer-uri: http://localhost:9999/auth/realms/one
           #Where above URL come from? The value can be whatever, and just needs to be the published issuer 
           #for your authorization server. It's usually listed in its documentation. 
           #The URL you used above is the issuer for a Keycloak authorization server, pointing at a realm named "one".
           #Included in the project is a docker-compose setup for Keycloak which creates a realm called one at startup. 
           #So, while you could point this at any authorization server, this specific URL simplifies local verification.
+        
+       #configuration to use Opaque Bearer Tokens instead of JWTs  
+       #The introspection endpoint, according to the Introspection RFC, 
+       #requires client authentication. For that reason, 
+       #you've got to supply a client ID and secret that have been previously configured in the authorization server. 
+       #You can think of these like a database username and password.
+       opaque-token:
+         introspection-uri: http://localhost:9999/auth/realms/one/protocol/openid-connect/token/introspect
+         client-id: app
+         client-secret: bfbd9f62-02ce-4638-a370-80d45514bd0a
