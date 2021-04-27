@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,11 @@ public class ResolutionController {
 
 	@GetMapping("/resolution/{id}")
 	@PreAuthorize("hasAuthority('resolution:read')")
+	//prevent an Insecure Direct Object Reference using the @PostAuthorize annotation
+	//to compare the currently logged-in user to the owner of the Resolution retrieved
+	//so if a user obtains the id of a Resolution that doesn't belong to them, 
+	//the API call will return a 403
+	@PostAuthorize("returnObject.orElse(null)?.owner == authentication.name")
 	public Optional<Resolution> read(@PathVariable("id") UUID id) {
 		return this.resolutions.findById(id);
 	}
