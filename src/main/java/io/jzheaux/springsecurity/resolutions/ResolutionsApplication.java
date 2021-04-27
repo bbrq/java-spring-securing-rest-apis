@@ -1,5 +1,6 @@
 package io.jzheaux.springsecurity.resolutions;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,11 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
 	public static void main(String[] args) {
 		SpringApplication.run(ResolutionsApplication.class, args);
 	}
+	
+	@Autowired
+    UserRepositoryJwtAuthenticationConverter authenticationConverter;
+	
+	
 
 	// override the Spring Security default UserDetailsService,
 	/*
@@ -86,7 +92,9 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
 		      The reason that simple Spring Boot applications can get away without this step is that 
 		      Spring Boot creates its own instance of WebSecurityConfigurerAdapter for you if you haven't yourself.
               * */
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+            .oauth2ResourceServer(oauth2 -> oauth2
+            		//to replace the JwtAuthenticationConverter
+                    .jwt().jwtAuthenticationConverter(this.authenticationConverter))
             //To configure Spring Security to allow CORS handshakes, call the cors() method in the Spring Security DSL
             .cors(cors -> {});;
         //more on above code:
@@ -151,14 +159,24 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
 	add a JwtAuthenticationConverter as a @Bean to tell Spring Security to not add any prefix to the scopes that it finds:
 	Now, JWTs that have the same scopes as our users' authorities will work for the same requests.	
 	*/
-	@Bean
-	JwtAuthenticationConverter jwtAuthenticationConverter() {
-	    JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
-	    JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-	    authoritiesConverter.setAuthorityPrefix("");
-	    authenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
-	    return authenticationConverter;
-	}/*
+	/*
+	 * UserDetailsService and JwtAuthenticationConverter are similar, but they have an important difference that 
+	 * changes the way that we use each.
+	 * JwtAuthenticationConverter doesn't have a dedicated interface - you'll notice that JwtAuthenticationConverter 
+	 * is a concrete class. This means that if we want to create our own implementation, 
+	 * we are actually implementing Converter<Jwt, AbstractAuthenticationToken>. As of the latest Spring Security, 
+	 * this means that it won't pick up the bean automatically, and for this reason, we need to place it 
+	 * on the DSL directly.
+	 * */
+	/*
+	 * @Bean JwtAuthenticationConverter jwtAuthenticationConverter() {
+	 * JwtAuthenticationConverter authenticationConverter = new
+	 * JwtAuthenticationConverter(); JwtGrantedAuthoritiesConverter
+	 * authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+	 * authoritiesConverter.setAuthorityPrefix("");
+	 * authenticationConverter.setJwtGrantedAuthoritiesConverter(
+	 * authoritiesConverter); return authenticationConverter; }
+	 *//*
 	instead of adding the JwtAuthenticationConverter. While more complex, the nice thing about this approach is 
 	that methods and filters can know where a given authority came from - for example: 
 	Was it an authority from the database or from the JWT? In many applications, this distinction doesn't matter 
