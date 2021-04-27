@@ -38,7 +38,10 @@ public class ResolutionController {
 	 * large result sets from the database, hydrate them into instances of Resolution, 
 	 * only to simply throw away the majority of them. This causes needless GC pressure.
 	 * Check out the next step for a more scalable approach.*/
-	@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
+	//@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
+	//The MethodSecurityExpressionOperations instance in ResolutionAuthorizer.filter()
+	//is the root object of method-based security SpEL expressions. 
+	@PostFilter("@post.filter(#root)")
 	public Iterable<Resolution> read() {
 		return this.resolutions.findAll();
 	}
@@ -50,7 +53,10 @@ public class ResolutionController {
 	//so if a user obtains the id of a Resolution that doesn't belong to them, 
 	//the API call will return a 403
 	@PostAuthorize("returnObject.orElse(null)?.owner == authentication.name")
-	@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
+	//@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
+	//The MethodSecurityExpressionOperations instance in ResolutionAuthorizer.filter()
+	//is the root object of method-based security SpEL expressions. 
+	@PostFilter("@post.filter(#root)")
 	public Optional<Resolution> read(@PathVariable("id") UUID id) {
 		return this.resolutions.findById(id);
 	}
@@ -70,7 +76,10 @@ public class ResolutionController {
 	
 	@PutMapping(path="/resolution/{id}/revise")
 	@PreAuthorize("hasAuthority('resolution:read')")
-	@PostAuthorize("returnObject.orElse(null)?.owner == authentication.name")
+	//@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
+	//The MethodSecurityExpressionOperations instance in ResolutionAuthorizer.filter()
+	//is the root object of method-based security SpEL expressions. 
+	@PostFilter("@post.filter(#root)")
 	@Transactional
 	public Optional<Resolution> revise(@PathVariable("id") UUID id, @RequestBody String text) {
 		this.resolutions.revise(id, text);
@@ -79,7 +88,10 @@ public class ResolutionController {
 
 	@PutMapping("/resolution/{id}/complete")
 	@PreAuthorize("hasAuthority('resolution:read')")
-	@PostAuthorize("returnObject.orElse(null)?.owner == authentication.name")
+	//@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
+	//The MethodSecurityExpressionOperations instance in ResolutionAuthorizer.filter()
+	//is the root object of method-based security SpEL expressions. 
+	@PostFilter("@post.filter(#root)")
 	@Transactional
 	public Optional<Resolution> complete(@PathVariable("id") UUID id) {
 		this.resolutions.complete(id);
