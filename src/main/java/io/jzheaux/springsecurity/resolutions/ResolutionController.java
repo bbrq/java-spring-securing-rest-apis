@@ -66,7 +66,7 @@ public class ResolutionController {
 	//@CurrentUsername will cause Spring to look up the username of the currently logged in user, 
 	//and use it when calling this method.
 	@PostMapping("/resolution")
-	@PreAuthorize("hasAuthority('resolution:read')")
+	@PreAuthorize("hasAuthority('resolution:write')")
 	public Resolution make(@CurrentUsername String owner, @RequestBody String text) {
 		Resolution resolution = new Resolution(text, owner);
 		return this.resolutions.save(resolution);
