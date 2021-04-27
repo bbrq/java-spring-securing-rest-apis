@@ -47,5 +47,21 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
 	    haswrite.setPassword("{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
 	    haswrite.grantAuthority("resolution:write");
 	    this.users.save(haswrite);
+	    
+	    
+	    
+	    //we'll consider the business requirement that admins have elevated permissions to see, 
+	    //for example, resolutions for all users.
+	    
+	    //First, create an admin user in ResolutionInitializer:
+	    User admin = new User("admin","{bcrypt}$2a$10$bTu5ilpT4YILX8dOWM/05efJnoSlX4ElNnjhNopL9aPoRyUgvXAYa");
+	    admin.grantAuthority("ROLE_ADMIN");
+	    admin.grantAuthority("resolution:read");
+	    admin.grantAuthority("resolution:write");
+	    this.users.save(admin);
+	    //Second, update the authorization expressions for both ResolutionController#read methods.
+        //to:
+        //@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
+	    //then we can logging in with admin/password will show all resolutions.
 	}
 }

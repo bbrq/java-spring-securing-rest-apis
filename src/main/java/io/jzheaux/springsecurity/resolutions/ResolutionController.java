@@ -38,7 +38,7 @@ public class ResolutionController {
 	 * large result sets from the database, hydrate them into instances of Resolution, 
 	 * only to simply throw away the majority of them. This causes needless GC pressure.
 	 * Check out the next step for a more scalable approach.*/
-	@PostFilter("filterObject.owner == authentication.name")
+	@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
 	public Iterable<Resolution> read() {
 		return this.resolutions.findAll();
 	}
@@ -50,6 +50,7 @@ public class ResolutionController {
 	//so if a user obtains the id of a Resolution that doesn't belong to them, 
 	//the API call will return a 403
 	@PostAuthorize("returnObject.orElse(null)?.owner == authentication.name")
+	@PostFilter("filterObject.owner == authentication.name || hasRole('ADMIN')")
 	public Optional<Resolution> read(@PathVariable("id") UUID id) {
 		return this.resolutions.findById(id);
 	}
