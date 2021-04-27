@@ -7,7 +7,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -141,4 +142,26 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter{
 	}
 
 
+	/*By default, Spring Security will extract each bearer token scope into its own GrantedAuthority, 
+	 * prefixing it with SCOPE_ along the way.
+	 * 
+	Our app uses no prefix:	@PreAuthorize("hasAuthority('resolution:read')")	
+	configure your project to maintain this approach, where no prefixes are used, overriding the default behavior.
+
+	add a JwtAuthenticationConverter as a @Bean to tell Spring Security to not add any prefix to the scopes that it finds:
+	Now, JWTs that have the same scopes as our users' authorities will work for the same requests.	
+	*/
+	@Bean
+	JwtAuthenticationConverter jwtAuthenticationConverter() {
+	    JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+	    JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+	    authoritiesConverter.setAuthorityPrefix("");
+	    authenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+	    return authenticationConverter;
+	}/*
+	instead of adding the JwtAuthenticationConverter. While more complex, the nice thing about this approach is 
+	that methods and filters can know where a given authority came from - for example: 
+	Was it an authority from the database or from the JWT? In many applications, this distinction doesn't matter 
+	to post-authentication.
+	*/
 }
