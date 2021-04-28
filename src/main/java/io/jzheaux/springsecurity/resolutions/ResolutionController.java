@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -135,5 +136,40 @@ public class ResolutionController {
 	public Optional<Resolution> complete(@PathVariable("id") UUID id) {
 		this.resolutions.complete(id);
 		return read(id);
+	}
+	
+	/*to add an endpoint that allows a user - with the appropriate authority - to share their resolutions with their friends.
+	 * 1, a new method share() with the following characteristics:*/
+	//It uses @PostAuthorize() to protect against Direct Object vulnerabilities
+	@PostAuthorize("@post.authorize(#root)")
+	//It gets tied to the PUT /resolution/{id}/share endpoint
+	@PutMapping("/resolution/{id}/share")
+	@Transactional
+	//It requires the 'resolution:share' authority (which we'll create later on)
+	@PreAuthorize("hasAuthority('resolution:share')")
+	public Optional<Resolution> share(@AuthenticationPrincipal User user, // get the logged-in user
+			@PathVariable("id") UUID id) {
+		// look up the resolution specified
+		Optional<Resolution> resolution = read(id);
+		resolution
+			//Because Spring uses proxy classes by default to perform its AOP method interception, 
+		    //the call to read() isn't actually getting checked by Spring Security.
+			//So, add a check that makes sure the Resolution that's returned from read() actually belongs to user:
+		    /*Actually, this step is an optimization, though an important one. Technically, because the user is 
+		     * inside of a database transaction, @PostAuthorize will fail when the method exits and the 
+		     * transaction will be rolled back, undoing any unauthorized shares.
+		     * But, it's definitely not desirable to do unnecessary work, which is what the call to filter() is preventing.
+		     * 
+		     * Alternatively, the share() method could be added to a different controller. 
+		     * Then, when the share() method calls the ResolutionController#read() method, 
+		     * the Spring Security check would be performed where we expect it.*/
+			.filter(r -> r.getOwner().equals(user.getUsername()))
+			.map(Resolution::getText).ifPresent(text -> {
+				// loop through all of user's friends and add that resolution into their list:
+				for (User friend : user.getFriends()) {
+					make(friend.getUsername(), text);
+				}
+			});
+		return resolution;
 	}
 }
